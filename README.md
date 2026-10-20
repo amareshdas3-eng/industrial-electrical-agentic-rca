@@ -5,6 +5,8 @@
 [![IEEE Standards](https://img.shields.io/badge/Standard-IEEE%20C37.2%20%7C%20IEC%2060255-00629B.svg)](https://standards.ieee.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![Dashboard Preview](docs/dashboard_preview.png)
+
 An autonomous multi-agent engineering intelligence system designed to ingest substation Single-Line Diagram (SLD) drawings, analyze SCADA/relay trip logs, trace physical power distribution topologies, and synthesize IEEE C37.2 & IEC 60255 compliant post-trip RCA reports.
 
 ---
