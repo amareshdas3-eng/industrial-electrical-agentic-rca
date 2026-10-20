@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+rich
+python-dotenv
+neo4j
+openai-agents
+httpx
+markdown
+pypdf
+google-genai
+python-multipart

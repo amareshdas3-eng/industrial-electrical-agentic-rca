@@ -1,18 +1,27 @@
-# Industrial Electrical Single-Line Diagram (SLD) Root Cause Analysis (RCA)
+# ⚡ Industrial Electrical SLD Multi-Agent Root Cause Analysis (RCA) Engine
 
-An autonomous multi-agent Root Cause Analysis platform for Industrial Electrical Power Distribution and Substation Automation systems.
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18+-61DAFB.svg?style=flat&logo=react)](https://react.dev)
+[![IEEE Standards](https://img.shields.io/badge/Standard-IEEE%20C37.2%20%7C%20IEC%2060255-00629B.svg)](https://standards.ieee.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Developed by **Amaresh Das**.
+An autonomous multi-agent engineering intelligence system designed to ingest substation Single-Line Diagram (SLD) drawings, analyze SCADA/relay trip logs, trace physical power distribution topologies, and synthesize IEEE C37.2 & IEC 60255 compliant post-trip RCA reports.
 
 ---
 
-## 1. Executive Overview
+## 🎯 Key Capabilities
 
-This engine ingests real-time SCADA / DCS / Intelligent Electronic Device (IED) alert payloads, queries electrical Single-Line Diagram (SLD) power flow topologies, correlates sub-second Sequence of Events (SOE) logs, inspects protection relay settings (ANSI codes), and generates standardized **IEEE C37.2 / IEC 60255** Root Cause Analysis reports.
+- **✍️ Real-World Incident Ingestion:** Accepts raw control room handover logs, SCADA alarm transcripts, and relay codes, with 4 built-in realistic presets (Stator Earth Fault `50N`, Transformer Winding Overheat `49T/63`, Utility Voltage Sag `27`, Busbar Flashover `50`).
+- **📑 SLD PDF Parser (`pdf_sld_parser.py`):** Automatically extracts electrical apparatus hierarchies, voltage classes (33kV, 11kV, 415V), and ANSI protective device allocations directly from engineering vector PDFs.
+- **🧠 Hybrid LLM / Offline Engineering Fallback:** Integrates Gemini 2.5 Flash / OpenAI for deep diagnostic reasoning, with a zero-dependency local rule engine that executes full selectivity audits and clearance timing analysis offline.
+- **⏱️ 1ms Sequence of Events (SOE) Ordering:** Distinguishes primary initiating protective operations from secondary sympathetic trips using sub-cycle timestamps.
+- **🛡️ Actionable CAPA:** Produces structured Lockout/Tagout (LOTO), insulation resistance (1,000V Megger/PI), and breaker contact resistance test protocols.
 
-### Electrical Single-Line Diagram (SLD) Topology:
+---
 
-$$\mathbf{Grid\ Incomer\ (33kV/11kV)} \longrightarrow \mathbf{11kV\ VCB} \longrightarrow \mathbf{Step\text{-}down\ Transformer\ (11kV/415V)} \longrightarrow \mathbf{LT\ MCC\ (415V)} \longrightarrow \mathbf{VFD\ Motor\ (250kW)}$$
+## 🏗️ Topology & Electrical Power Flow Architecture
+
+$$\mathbf{Grid\ Incomer\ (33kV/11kV)} \longrightarrow \mathbf{11kV\ VCB} \longrightarrow \mathbf{Dyn11\ Transformer} \longrightarrow \mathbf{415V\ LT\ MCC} \longrightarrow \mathbf{VFD\ Motor\ (250kW)}$$
 
 ```mermaid
 graph TD
@@ -32,9 +41,9 @@ graph TD
 
 ---
 
-## 2. Multi-Agent System Architecture
+## 🤖 Multi-Agent Orchestration Architecture
 
-The pipeline coordinates five specialized agents:
+The system coordinates five specialized agents:
 
 ```mermaid
 sequenceDiagram
@@ -62,7 +71,7 @@ sequenceDiagram
     RCA-->>Orch: Final IEEE/IEC Standard RCA Report
 ```
 
-1. **`SLDGraphAgent`**: Queries the Neo4j Single-Line Diagram power distribution graph for upstream feeds, downstream branches, rated capacities, and breaker statuses.
+1. **`SLDGraphAgent`**: Queries the Single-Line Diagram power distribution graph for upstream feeds, downstream branches, rated capacities, and breaker statuses.
 2. **`RelayTelemetryAgent`**: Retrieves Intelligent Electronic Device (IED) measurements ($I_R, I_Y, I_B$, line voltages, frequency, power factor, THD %, and ANSI trip codes: 50, 51, 50N, 87, 49, 27, 59, 63).
 3. **`SOEHistorianAgent`**: Ingests high-resolution 1-millisecond Sequence of Events logs to establish exact chronological order and distinguish the primary initiating fault from consequential trips.
 4. **`EquipmentSpecAgent`**: Correlates fault data against Time-Current Characteristic (TCC) coordination curves, cable $I^2t$ withstand limits, and maintenance logs (Megger insulation resistance, DGA oil tests).
@@ -70,83 +79,72 @@ sequenceDiagram
 
 ---
 
-## 3. Supported Protection Functions (ANSI Device Numbers)
+## ⚡ Supported Protection Functions (ANSI Device Numbers)
 
 - **`50 / 51`**: Instantaneous / Time-delay Phase Overcurrent
 - **`50N / 51N`**: Instantaneous / Time-delay Earth Fault / Ground Overcurrent
 - **`87T / 87M`**: Transformer / Motor Differential Protection
 - **`49T / 49OT`**: Transformer Winding / Oil High Temperature (WTI / OTI)
 - **`63`**: Buchholz Gas Accumulation & Surge Relay
-- **`27 / 59`**: Under-voltage / Over-voltage
+- **`27 / 59`**: Under-voltage / Over-voltage Protection
 - **`51LR`**: Motor Locked Rotor / Stall Protection
 - **`38`**: Motor Bearing Temperature RTD Protection
+- **`94 / 52`**: Breaker Tripping Auxiliary Relay & Circuit Breaker Mechanism
 
 ---
 
-## 4. Quick Start: 1-Click Interactive App Launcher
+## 🚀 1-Click Quickstart
 
-You can launch the entire stack—both the Multi-Agent FastAPI backend (`:8001`) and the Next.js interactive SLD canvas (`:3000`) with automatic browser launch—in **one click**:
+### Prerequisites
+- Python 3.10+
+- Node.js 18+ (for frontend dashboard)
 
-### Windows Command Prompt / Double-Click:
-```cmd
-start_app.bat
-```
-*(Or double-click `start_app.bat` in Windows File Explorer)*
-
-### PowerShell:
+### Option A: 1-Click Launch (Windows)
+Double-click `start_app.bat` or run in PowerShell:
 ```powershell
 .\start_app.ps1
 ```
+This automatically boots the FastAPI backend (`http://localhost:8001`), compiles the Next.js UI (`http://localhost:3000`), and launches your default browser.
 
-Both launchers will:
-1. Detect and activate the Python virtual environment (`.venv`).
-2. Start the FastAPI Multi-Agent backend server on `http://localhost:8001`.
-3. Launch the Next.js dashboard on `http://localhost:3000`.
-4. Open your default web browser directly to `http://localhost:3000`.
+### Option B: Manual Terminal Launch
 
----
-
-## 5. Manual Setup & Testing
-
-### Step 1: Initialize Python Virtual Environment
+**1. Start Backend Engine:**
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\pip install -r agents/requirements.txt
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn agents.electrical_app:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### Step 2: Seed the SLD Topology
-```powershell
-.\.venv\Scripts\python scripts/seed_sld_neo4j.py
-```
-*(Populates Neo4j if active at `bolt://localhost:7687`, or generates local cache `scripts/sld_graph_cache.json` for offline simulation).*
-
-### Step 3: Run the Multi-Agent CLI Simulation
-```powershell
-.\.venv\Scripts\python scripts/test_electrical_alert.py
-```
-This triggers an instantaneous Phase R earth fault alert (`50N`) on the `MTR-VFD-01` motor feeder, executes the full multi-agent analysis, and writes the resulting report to `scripts/sample_electrical_rca_report.md`.
-
-### Step 4: Run the Backend API Separately
-```powershell
-.\.venv\Scripts\python -m uvicorn agents.electrical_app:app --host 0.0.0.0 --port 8001 --reload
-```
-- API Endpoint: `http://localhost:8001`
-- Swagger Docs: `http://localhost:8001/docs`
-- 1-Click Scenario Endpoint: `GET /api/scenarios`
-- Synchronous Multi-Agent Analysis: `POST /api/analyze`
-- Webhook: `POST /alerts`
-- WebSocket Stream: `ws://localhost:8001/process/{websocket_id}`
-
-### Step 5: Run the Frontend Separately
+**2. Start Frontend Dashboard:**
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
-Open `http://localhost:3000` to interact with the Single-Line Diagram and inspect live apparatus telemetry.
+Open your browser to `http://localhost:3000`.
 
 ---
 
-## 5. License
+## 🧪 Automated Headless Test Suite
+
+To verify the multi-agent reasoning chain and report synthesis in a terminal environment:
+```powershell
+python scripts/test_electrical_alert.py
+```
+
+---
+
+## 👨‍💼 Engineering Architecture & Design
+
+**Architected by Amaresh Das**  
+*Senior Industrial Project, Electrical Infrastructure & AI Transformation Consultant*  
+23+ years of experience in 33kV/11kV substation commissioning, protection relay configuration, and capital project controls.  
+- 🌐 [ProEngineering](https://proengineering.in)
+- 💼 [LinkedIn Profile](https://linkedin.com)
+
+---
+
+## 📜 License
 
 MIT License. Copyright (c) 2026 **Amaresh Das**.

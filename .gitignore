@@ -1,16 +1,39 @@
-.vscode
-.env
-.venv
+# Virtual environments
+.venv/
 venv/
+env/
+ENV/
+
+# Python cache & build
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.log
-node_modules/
-.next/
+*.py[cod]
+*$py.class
+*.egg-info/
 dist/
 build/
+*.pyd
+
+# Node / Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/build/
+.next/
+node_modules/
+
+# Local databases & logs
+*.db
+*.sqlite3
+*.log
+neo4j_data/
+
+# Environment files (never commit real API keys!)
+.env
+.env.local
+.env.*.local
+
+# OS & IDE
 .DS_Store
-scripts/sld_graph_cache.json
-scripts/sample_electrical_rca_report.md
+Thumbs.db
+.vscode/
+.idea/
