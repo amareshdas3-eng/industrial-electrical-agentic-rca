@@ -1,0 +1,16 @@
+.vscode
+.env
+.venv
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+node_modules/
+.next/
+dist/
+build/
+.DS_Store
+scripts/sld_graph_cache.json
+scripts/sample_electrical_rca_report.md

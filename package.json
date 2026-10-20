@@ -1,0 +1,11 @@
+{
+  "name": "industrial-electrical-agentic-rca",
+  "version": "1.0.0",
+  "description": "Multi-agent Root Cause Analysis pipeline for Industrial Electrical Single-Line Diagram (SLD) topologies",
+  "author": "Amaresh Das",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "react-markdown": "^10.1.0"
+  }
+}
