@@ -16,7 +16,8 @@ if (-not (Test-Path $PythonExe)) {
 
 # 1. Start FastAPI Backend (Port 8001) in separate process
 Write-Host "[*] Launching Multi-Agent FastAPI Backend on http://localhost:8001..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$WorkspaceRoot'; & '$PythonExe' -m uvicorn agents.electrical_app:app --host 0.0.0.0 --port 8001 --reload"
+$AgentsDir = Join-Path $WorkspaceRoot "agents"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$AgentsDir'; & '$PythonExe' -m uvicorn electrical_app:app --host 0.0.0.0 --port 8001 --reload"
 
 # 2. Start Next.js Frontend (Port 3000) in separate process
 Write-Host "[*] Launching Next.js Interactive Dashboard on http://localhost:3000..." -ForegroundColor Green

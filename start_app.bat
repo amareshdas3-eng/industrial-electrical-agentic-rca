@@ -17,7 +17,7 @@ if not exist "%PYTHON_EXE%" (
 
 :: 2. Launch FastAPI Backend on Port 8001 in a new window
 echo [*] Launching Multi-Agent FastAPI Backend on http://localhost:8001 ...
-start "Electrical RCA - Backend API (:8001)" cmd /k "cd /d "%~dp0" && "%PYTHON_EXE%" -m uvicorn agents.electrical_app:app --host 0.0.0.0 --port 8001 --reload"
+start "Electrical RCA - Backend API (:8001)" cmd /k "cd /d "%~dp0agents" && "%PYTHON_EXE%" -m uvicorn electrical_app:app --host 0.0.0.0 --port 8001 --reload"
 
 :: 3. Launch Next.js Frontend on Port 3000 in a new window
 echo [*] Launching Next.js Interactive Dashboard on http://localhost:3000 ...

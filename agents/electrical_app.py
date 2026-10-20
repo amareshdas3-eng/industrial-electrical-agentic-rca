@@ -8,18 +8,25 @@ Provides:
 • WS   /process/{id}  - WebSocket stream emitting real-time multi-agent reasoning
 """
 
+import os
+import sys
 import uuid
 import time
 import asyncio
 from datetime import datetime
+
+# Ensure agents directory is in sys.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from typing import Dict, Any, Optional, List
-from fastapi import FastAPI, status, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, status, HTTPException, WebSocket, WebSocketDisconnect, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from electrical_models import ElectricalAlertGroup, ElectricalAlert, SLDTopologyResponse
 from electrical_rca_manager import ElectricalRCAManager
 from electrical_agents import query_sld_topology_fn
+from pdf_sld_parser import parse_sld_pdf
+from llm_electrical_rca import generate_custom_rca
 
 app = FastAPI(
     title="Industrial Electrical Single-Line Diagram (SLD) Root Cause Analysis API",
@@ -266,6 +273,72 @@ async def analyze_incident(req: AnalyzeRequest):
         return result
     except Exception as e:
         print(f"[API] Error in /api/analyze: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+class CustomRCAPayload(BaseModel):
+    incident_description: str
+    asset_tag: Optional[str] = None
+    sld_info: Optional[Dict[str, Any]] = None
+
+@app.post("/api/upload-sld")
+async def upload_sld_pdf(file: UploadFile = File(...)) -> Dict[str, Any]:
+    """
+    Upload and parse an electrical Single-Line Diagram (SLD) in PDF format.
+    Extracts apparatus tags, voltage levels, protective relays, and power flow hierarchy.
+    """
+    try:
+        content = await file.read()
+        parsed = parse_sld_pdf(content, filename=file.filename)
+        return {
+            "status": "success",
+            "message": f"Successfully parsed SLD drawing '{file.filename}' ({parsed['pages']} pages)",
+            "data": parsed
+        }
+    except Exception as e:
+        print(f"[API] Error in /api/upload-sld: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to parse SLD PDF: {str(e)}")
+
+@app.post("/api/analyze-custom")
+async def analyze_custom_incident(
+    incident_description: str = Form(...),
+    asset_tag: Optional[str] = Form(None),
+    sld_pdf: Optional[UploadFile] = File(None)
+) -> Dict[str, Any]:
+    """
+    Analyze a custom real-world electrical incident description using LLM agents,
+    optionally incorporating an uploaded Single-Line Diagram (SLD) PDF.
+    """
+    try:
+        sld_info = None
+        if sld_pdf:
+            pdf_bytes = await sld_pdf.read()
+            if len(pdf_bytes) > 0:
+                sld_info = parse_sld_pdf(pdf_bytes, filename=sld_pdf.filename)
+        
+        result = generate_custom_rca(
+            incident_description=incident_description,
+            asset_tag=asset_tag,
+            sld_info=sld_info
+        )
+        if sld_info:
+            result["parsed_sld"] = sld_info
+        return result
+    except Exception as e:
+        print(f"[API] Error in /api/analyze-custom: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/analyze-custom-json")
+async def analyze_custom_incident_json(payload: CustomRCAPayload) -> Dict[str, Any]:
+    """JSON version of the custom incident analysis endpoint."""
+    try:
+        result = generate_custom_rca(
+            incident_description=payload.incident_description,
+            asset_tag=payload.asset_tag,
+            sld_info=payload.sld_info
+        )
+        return result
+    except Exception as e:
+        print(f"[API] Error in /api/analyze-custom-json: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/alerts", status_code=status.HTTP_202_ACCEPTED)
