@@ -29,8 +29,8 @@ interface AlertGroup {
   status: string;
   receiver: string;
   groupLabels: Record<string, string>;
-  commonLabels: Record<string, string>;
-  commonAnnotations: Record<string, string>;
+  commonLabels: Record<string, string | undefined>;
+  commonAnnotations: Record<string, string | undefined>;
   externalURL: string;
   alerts: Alert[];
 }
@@ -137,7 +137,7 @@ export default function Alerts() {
           // Only display MESSAGE_OUTPUT from neo4j agent with 'services' array
           if (
             message.type === WebSocketMessageType.MESSAGE_OUTPUT &&
-            message.agent === AgentType.NEO4J &&
+            message.agent === AgentType.SLD_GRAPH &&
             message.data &&
             typeof message.data === 'string'
           ) {
@@ -149,7 +149,7 @@ export default function Alerts() {
               return;
             }
             if (parsed && Array.isArray(parsed.services) && parsed.services.length > 0) {
-              setGraphData(parsed);
+              console.log('SLD Graph topology received:', parsed);
             }
           } else {
             // For all other messages, just log

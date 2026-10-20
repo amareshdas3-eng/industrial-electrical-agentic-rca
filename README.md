@@ -83,14 +83,32 @@ sequenceDiagram
 
 ---
 
-## 4. Quick Start & Execution
+## 4. Quick Start: 1-Click Interactive App Launcher
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+ (for frontend)
-- Docker (optional, for Neo4j)
+You can launch the entire stack—both the Multi-Agent FastAPI backend (`:8001`) and the Next.js interactive SLD canvas (`:3000`) with automatic browser launch—in **one click**:
 
-### Step 1: Initialize Virtual Environment
+### Windows Command Prompt / Double-Click:
+```cmd
+start_app.bat
+```
+*(Or double-click `start_app.bat` in Windows File Explorer)*
+
+### PowerShell:
+```powershell
+.\start_app.ps1
+```
+
+Both launchers will:
+1. Detect and activate the Python virtual environment (`.venv`).
+2. Start the FastAPI Multi-Agent backend server on `http://localhost:8001`.
+3. Launch the Next.js dashboard on `http://localhost:3000`.
+4. Open your default web browser directly to `http://localhost:3000`.
+
+---
+
+## 5. Manual Setup & Testing
+
+### Step 1: Initialize Python Virtual Environment
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\pip install -r agents/requirements.txt
@@ -102,22 +120,24 @@ python -m venv .venv
 ```
 *(Populates Neo4j if active at `bolt://localhost:7687`, or generates local cache `scripts/sld_graph_cache.json` for offline simulation).*
 
-### Step 3: Run the Multi-Agent RCA Test Simulation
+### Step 3: Run the Multi-Agent CLI Simulation
 ```powershell
 .\.venv\Scripts\python scripts/test_electrical_alert.py
 ```
 This triggers an instantaneous Phase R earth fault alert (`50N`) on the `MTR-VFD-01` motor feeder, executes the full multi-agent analysis, and writes the resulting report to `scripts/sample_electrical_rca_report.md`.
 
-### Step 4: Run the Webhook Receiver & API
+### Step 4: Run the Backend API Separately
 ```powershell
-.\.venv\Scripts\python agents/electrical_app.py
+.\.venv\Scripts\python -m uvicorn agents.electrical_app:app --host 0.0.0.0 --port 8001 --reload
 ```
 - API Endpoint: `http://localhost:8001`
 - Swagger Docs: `http://localhost:8001/docs`
+- 1-Click Scenario Endpoint: `GET /api/scenarios`
+- Synchronous Multi-Agent Analysis: `POST /api/analyze`
 - Webhook: `POST /alerts`
-- WebSocket: `ws://localhost:8001/process/{websocket_id}`
+- WebSocket Stream: `ws://localhost:8001/process/{websocket_id}`
 
-### Step 5: Start the Interactive Frontend
+### Step 5: Run the Frontend Separately
 ```powershell
 cd frontend
 npm install
